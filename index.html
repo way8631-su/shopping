@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<title>選物櫥窗</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #faf9f6;
+    --surface: #ffffff;
+    --ink: #1c1a17;
+    --ink-soft: #86807a;
+    --ink-faint: #b6afa6;
+    --line: #e8e4dd;
+    --accent: #8a6d4a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #16140f;
+      --surface: #1e1b16;
+      --ink: #f3f0ea;
+      --ink-soft: #9b948a;
+      --ink-faint: #6b645b;
+      --line: #2c2820;
+      --accent: #cfa876;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #16140f;
+    --surface: #1e1b16;
+    --ink: #f3f0ea;
+    --ink-soft: #9b948a;
+    --ink-faint: #6b645b;
+    --line: #2c2820;
+    --accent: #cfa876;
+  }
+
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans TC", "Segoe UI", sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .topline{
+    border-bottom: 1px solid var(--line);
+  }
+  .topline-inner{
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 18px 32px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .mark{
+    font-family: "Shippori Mincho", serif;
+    font-size: 17px;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .count{
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+  }
+
+  header{
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 88px 32px 64px;
+  }
+  .eyebrow{
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 18px;
+  }
+  h1{
+    font-family: "Shippori Mincho", serif;
+    font-weight: 500;
+    font-size: clamp(32px, 4.4vw, 50px);
+    line-height: 1.3;
+    margin: 0 0 20px;
+    text-wrap: balance;
+    letter-spacing: 0.02em;
+  }
+  .sub{
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.8;
+    max-width: 46ch;
+  }
+
+  main{
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 32px 120px;
+  }
+
+  .grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    column-gap: 40px;
+    row-gap: 64px;
+  }
+
+  .card{
+    display: flex;
+    flex-direction: column;
+  }
+  .card .imgwrap{
+    aspect-ratio: 4 / 5;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    margin-bottom: 18px;
+  }
+  .card img{
+    width:100%;
+    height:100%;
+    object-fit: cover;
+    display:block;
+    transition: transform 0.5s ease;
+  }
+  .card:hover img{
+    transform: scale(1.035);
+  }
+  .noimg{
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+  }
+  .card .name{
+    font-size: 14.5px;
+    letter-spacing: 0.01em;
+    margin: 0 0 6px;
+  }
+  .card .desc{
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    margin: 0 0 10px;
+  }
+  .card .price{
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    color: var(--accent);
+  }
+
+  .empty, .error{
+    text-align:center;
+    color: var(--ink-faint);
+    padding: 80px 20px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+  }
+
+  footer{
+    border-top: 1px solid var(--line);
+  }
+  .footer-inner{
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 28px 32px;
+    color: var(--ink-faint);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+<div class="topline">
+  <div class="topline-inner">
+    <span class="mark">選物櫥窗</span>
+    <span class="count" id="count"></span>
+  </div>
+</div>
+
+<header>
+  <div class="eyebrow">Current Collection</div>
+  <h1>目前上架品項</h1>
+  <p class="sub">展示用途，僅供瀏覽與詢問，不提供線上下單。</p>
+</header>
+
+<main>
+  <div id="grid" class="grid"></div>
+  <div id="status"></div>
+</main>
+
+<footer>
+  <div class="footer-inner">資料每次載入頁面時即時同步。</div>
+</footer>
+
+<script>
+  // 部署時把這裡換成 Apps Script 網頁應用程式網址（見 AppsScript/README.md）
+  const API_URL = "";
+
+  const SAMPLE_PRODUCTS = [
+    { id: 1, name: "紫水晶手鍊", price: 680, description: "天然紫水晶，圓珠 8mm，彈性繩可調整。", image: "" },
+    { id: 2, name: "白水晶項鍊", price: 920, description: "六角柱白水晶墜飾，附皮繩。", image: "" },
+    { id: 3, name: "粉晶戒指", price: 450, description: "粉水晶圓珠戒，可調式尺寸。", image: "" },
+    { id: 4, name: "黑曜石吊墜", price: 780, description: "天然黑曜石，附鍍銀鍊。", image: "" },
+  ];
+
+  function money(n){
+    const num = Number(n);
+    return isNaN(num) ? n : num.toLocaleString("zh-Hant-TW");
+  }
+
+  function renderProducts(products){
+    const grid = document.getElementById("grid");
+    const status = document.getElementById("status");
+    const count = document.getElementById("count");
+    grid.innerHTML = "";
+
+    if (!products.length){
+      status.innerHTML = '<div class="empty">目前沒有上架中的商品。</div>';
+      count.textContent = "";
+      return;
+    }
+    status.innerHTML = "";
+    count.textContent = products.length + " 件";
+
+    for (const p of products){
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <div class="imgwrap">
+          ${p.image ? `<img src="${p.image}" alt="${p.name}" loading="lazy">` : `<span class="noimg">無圖片</span>`}
+        </div>
+        <h3 class="name">${p.name}</h3>
+        ${p.description ? `<p class="desc">${p.description}</p>` : ""}
+        <div class="price">NT$ ${money(p.price)}</div>
+      `;
+      grid.appendChild(card);
+    }
+  }
+
+  async function load(){
+    if (!API_URL){
+      renderProducts(SAMPLE_PRODUCTS);
+      document.getElementById("status").innerHTML =
+        '<div class="empty">目前顯示示範資料 — 接上 Google Sheet 後台後會自動換成真實商品。</div>';
+      return;
+    }
+    try{
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      renderProducts(data.products || []);
+    }catch(err){
+      document.getElementById("status").innerHTML = '<div class="error">商品資料載入失敗，請稍後再試。</div>';
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>

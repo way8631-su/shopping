@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<title>商品上架後台</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #f6f2ec;
+    --surface: #ffffff;
+    --ink: #2a2420;
+    --ink-soft: #6b6058;
+    --line: #e4dcd0;
+    --accent: #6b3f57;
+    --accent-soft: #f1e6ec;
+    --ok: #3e6b4e;
+    --err: #a03c3c;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #1b1714;
+      --surface: #262019;
+      --ink: #f1ebe2;
+      --ink-soft: #b8ab9d;
+      --line: #3a322a;
+      --accent: #d9a6bf;
+      --accent-soft: #33262d;
+      --ok: #7fbf95;
+      --err: #e08a8a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #1b1714;
+    --surface: #262019;
+    --ink: #f1ebe2;
+    --ink-soft: #b8ab9d;
+    --line: #3a322a;
+    --accent: #d9a6bf;
+    --accent-soft: #33262d;
+    --ok: #7fbf95;
+    --err: #e08a8a;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    min-height:100vh;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans TC", "Segoe UI", sans-serif;
+    display:flex;
+    justify-content:center;
+    padding: 48px 20px;
+  }
+  .panel{
+    width:100%;
+    max-width: 520px;
+  }
+  .eyebrow{
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  h1{
+    font-family: "Noto Serif TC", serif;
+    font-size: 26px;
+    margin: 8px 0 24px;
+  }
+  form{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  label{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  input, textarea{
+    font: inherit;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  textarea{ resize: vertical; min-height: 70px; }
+  input:focus, textarea:focus{
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  button{
+    font: inherit;
+    font-weight: 600;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    background: var(--accent);
+    color: var(--accent-soft);
+    cursor: pointer;
+  }
+  button:disabled{ opacity: 0.6; cursor: default; }
+  .msg{ font-size: 13px; min-height: 18px; }
+  .msg.ok{ color: var(--ok); }
+  .msg.err{ color: var(--err); }
+  .hint{
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="panel">
+  <div class="eyebrow">後台</div>
+  <h1>新增商品上架</h1>
+  <form id="form">
+    <label>商品名稱
+      <input type="text" name="name" required>
+    </label>
+    <label>價格（NT$）
+      <input type="number" name="price" min="0" required>
+    </label>
+    <label>描述
+      <textarea name="description"></textarea>
+    </label>
+    <label>圖片網址
+      <input type="url" name="image" placeholder="https://...">
+      <span class="hint">見 AppsScript/README.md 說明如何取得 Google Drive 圖片直連網址。</span>
+    </label>
+    <label>後台密碼
+      <input type="password" name="token" required>
+    </label>
+    <button type="submit">上架</button>
+    <div class="msg" id="msg"></div>
+  </form>
+</div>
+
+<script>
+  // 部署時把這裡換成 Apps Script 網頁應用程式網址（見 AppsScript/README.md）
+  const API_URL = "";
+
+  const form = document.getElementById("form");
+  const msg = document.getElementById("msg");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg.textContent = "";
+    msg.className = "msg";
+
+    if (!API_URL){
+      msg.textContent = "尚未設定 API_URL，請先完成 AppsScript/README.md 的部署步驟。";
+      msg.classList.add("err");
+      return;
+    }
+
+    const data = Object.fromEntries(new FormData(form).entries());
+    const button = form.querySelector("button");
+    button.disabled = true;
+
+    try{
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (result.error){
+        msg.textContent = "密碼錯誤，請確認後台密碼。";
+        msg.classList.add("err");
+      } else {
+        msg.textContent = "上架成功！";
+        msg.classList.add("ok");
+        form.reset();
+      }
+    }catch(err){
+      msg.textContent = "送出失敗，請檢查網路連線。";
+      msg.classList.add("err");
+    }finally{
+      button.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
